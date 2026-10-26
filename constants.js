@@ -11,11 +11,13 @@ moment.locale("es");
  * La instalación siempre es S/ 0.00.
  ***************************************/
 const MINIMO_GARANTIZADO = 0.7;
+// vInicial = velocidad los primeros 6 meses (con upgrade); vPosterior = velocidad base.
+// Si vInicial === vPosterior el plan no tiene upgrade.
 const PLANES = [
-  // Plan tomado de tu captura. FALTAN 2 planes: pégalos con el mismo formato.
-  { vInicial: 400, vPosterior: 300, precioMensual: 59 },
-  // { vInicial: 0, vPosterior: 0, precioMensual: 0 },
-  // { vInicial: 0, vPosterior: 0, precioMensual: 0 },
+  { etiqueta: "300 Mbps",            vInicial: 400, vPosterior: 300, precioMensual: 59 },
+  { etiqueta: "600 Mbps",            vInicial: 800, vPosterior: 600, precioMensual: 69 },
+  { etiqueta: "800 Mbps",            vInicial: 800, vPosterior: 800, precioMensual: 79 },
+  { etiqueta: "800 Mbps Provincia",  vInicial: 800, vPosterior: 800, precioMensual: 50, provincia: true },
 ];
 const PRECIO_INSTALACION = 0;
 

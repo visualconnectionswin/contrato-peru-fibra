@@ -3,6 +3,8 @@
  ***************************************/
 let state = {
   documentType: "dni",
+  etiqueta: "",
+  provincia: false,
   vInicial: "",
   mInicial: "",
   vPosterior: "",
@@ -83,9 +85,9 @@ function renderSavedPlans() {
   }
   box.innerHTML = PLANES.map((p, i) => `
     <div class="plan-card ${i === selectedPlanId ? "selected" : ""}" data-idx="${i}">
-      <div class="plan-name">${fmtNum(p.vInicial)} Mbps</div>
+      <div class="plan-name">${p.etiqueta}</div>
       <div class="plan-price">${plainSoles(p.precioMensual)}</div>
-      <div class="plan-sub">luego ${fmtNum(p.vPosterior)} Mbps</div>
+      <div class="plan-sub">${p.vInicial !== p.vPosterior ? "sube a " + fmtNum(p.vInicial) + " x 6 meses" : "&nbsp;"}</div>
     </div>
   `).join("");
 
@@ -100,9 +102,11 @@ function applyPlan(idx) {
   const p = PLANES[idx];
   if (!p) return;
   selectedPlanId = idx;
+  state.etiqueta = p.etiqueta;
+  state.provincia = !!p.provincia;
   state.vInicial = p.vInicial;
   state.vPosterior = p.vPosterior;
-  state.precioMensual = p.precioMensual;
+  state.precioMensual = p.precioMensual === null ? "" : p.precioMensual;
   state.mInicial = Math.round(p.vInicial * MINIMO_GARANTIZADO * 100) / 100;
   state.mPosterior = Math.round(p.vPosterior * MINIMO_GARANTIZADO * 100) / 100;
   renderSavedPlans();
@@ -117,8 +121,8 @@ function updateContract() {
   const currentDate = moment();
 
   const isRuc = state.documentType === "ruc";
-  const vi = isFilled(state.vInicial) ? fmtNum(state.vInicial) : "---";
-  let summary = `LIMA - ${isRuc ? "RUC 20" : "DNI/CE/RUC 10"} - ${vi} Mbps`;
+  const zona = state.provincia ? "PROVINCIA" : "LIMA";
+  let summary = `${zona} - ${isRuc ? "RUC 20" : "DNI/CE/RUC 10"} - ${state.etiqueta || "Selecciona un plan"}`;
   if (isFilled(state.precioMensual)) summary += ` - ${plainSoles(state.precioMensual)}`;
   document.getElementById("planSummary").innerHTML = summary;
 
@@ -147,23 +151,39 @@ function updateContract() {
     </p>`;
   }
 
-  const html = `
-    <div>
+  const ciudad = state.provincia ? `<span class="pending">[CIUDAD]</span>` : "LIMA";
+  const hayUpgrade = isFilled(state.vInicial) && isFilled(state.vPosterior) && state.vInicial !== state.vPosterior;
 
-      <p class="text-sm">
-        Hoy ${currentDate.format("DD")} de ${currentDate.format("MMMM")} del ${currentDate.format("YYYY")}, en la ciudad de LIMA, usted contrata con PERÚ FIBRA, para ello me brinda los siguientes datos:
-      </p>
-      ${datosText}
-
-      <div class="contract-section">
-        <h3 class="font-bold text-base">FIBRA</h3>
-        <p>
+  const fibraVelocidad = hayUpgrade
+    ? `<p>
           El servicio de internet fijo postpago de PERÚ FIBRA, es ilimitado, 100% fibra óptica. Con velocidad simétrica de ${mbps(state.vInicial)} de carga y descarga, y aseguramos un mínimo de ${mbps(state.mInicial)} de carga y descarga por los próximos <strong class="bold-keyword">6 meses</strong>.
         </p>
         <br>
         <p>
           Posterior a este tiempo navegará a velocidad simétrica de ${mbps(state.vPosterior)} de carga y descarga, y aseguramos un mínimo de ${mbps(state.mPosterior)} de carga y descarga.
-        </p>
+        </p>`
+    : `<p>
+          El servicio de internet fijo postpago de PERÚ FIBRA, es ilimitado, 100% fibra óptica. Con velocidad simétrica de ${mbps(state.vPosterior)} de carga y descarga, y aseguramos un mínimo de ${mbps(state.mPosterior)} de carga y descarga.
+        </p>`;
+
+  const upgradeTexto = hayUpgrade
+    ? `<br>
+        <p>
+          El upgrade y tarifa promocional se aplicará mientras el servicio permanezca activo, se mantenga el mismo plan contratado y no sea suspendido a solicitud del cliente.
+        </p>`
+    : "";
+
+  const html = `
+    <div>
+
+      <p class="text-sm">
+        Hoy ${currentDate.format("DD")} de ${currentDate.format("MMMM")} del ${currentDate.format("YYYY")}, en la ciudad de ${ciudad}, usted contrata con PERÚ FIBRA, para ello me brinda los siguientes datos:
+      </p>
+      ${datosText}
+
+      <div class="contract-section">
+        <h3 class="font-bold text-base">FIBRA</h3>
+        ${fibraVelocidad}
         <br>
         <p>
           El servicio incluye un equipo terminal ONT (router) y cargador en comodato, los cuales deberá devolverlos en buenas condiciones al culminar el servicio o pagará el valor total de este equipamiento. El contrato tendrá plazo indeterminado y podrá ser resuelto de acuerdo a la normativa de condiciones de uso.
@@ -176,10 +196,7 @@ function updateContract() {
         <p>
           La fecha de facturación es el <strong class="bold-keyword">04</strong> de cada mes y la fecha de vencimiento es el <strong class="bold-keyword">28</strong> del mismo mes. En caso de que el cierre de ciclo esté próximo, los días proporcionales del servicio serán facturados en el siguiente recibo.
         </p>
-        <br>
-        <p>
-          El upgrade y tarifa promocional se aplicará mientras el servicio permanezca activo, se mantenga el mismo plan contratado y no sea suspendido a solicitud del cliente.
-        </p>
+        ${upgradeTexto}
       </div>
 
       <div class="contract-section">
