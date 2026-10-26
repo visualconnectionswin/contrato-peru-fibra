@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perú Fibra Contrato Generator</title>
+    <link rel="icon" type="image/png" href="logo.png" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment-with-locales.min.js"></script>
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="logo.png" alt="Perú Fibra" />
+      </div>
+
+      <div class="config-group">
+        <label class="config-label">Tipo Cliente</label>
+        <div class="button-group">
+          <button class="btn-config active" data-doctype="dni">DNI/CE/RUC 10</button>
+          <button class="btn-config" data-doctype="ruc">RUC 20</button>
+        </div>
+      </div>
+
+      <div class="config-group">
+        <label class="config-label">Planes guardados</label>
+        <div id="savedPlans" class="saved-plans"></div>
+      </div>
+
+      <div class="config-group">
+        <label class="config-label">Primeros 6 meses</label>
+        <div class="field-row">
+          <div class="field"><span>Velocidad (Mbps)</span><input type="number" id="vInicial" min="0" step="any" /></div>
+          <div class="field"><span>Mínimo (Mbps)</span><input type="number" id="mInicial" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="config-group">
+        <label class="config-label">Posterior a 6 meses</label>
+        <div class="field-row">
+          <div class="field"><span>Velocidad (Mbps)</span><input type="number" id="vPosterior" min="0" step="any" /></div>
+          <div class="field"><span>Mínimo (Mbps)</span><input type="number" id="mPosterior" min="0" step="any" /></div>
+        </div>
+      </div>
+
+      <div class="config-group">
+        <label class="config-label">Precios (S/ con IGV)</label>
+        <div class="field-row">
+          <div class="field"><span>Mensual</span><input type="number" id="precioMensual" min="0" step="0.01" /></div>
+          <div class="field"><span>Instalación</span><input type="number" id="precioInstalacion" min="0" step="0.01" /></div>
+        </div>
+      </div>
+
+      <div class="config-group">
+        <button class="btn-save-plan" id="btnSavePlan">💾 Guardar como plan</button>
+        <button class="btn-clear" id="btnClear">Limpiar campos</button>
+      </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+      <div class="contract-container">
+        <div id="contractOutput" class="contract-card">
+          <h2 class="contract-title">CONTRATO DE PERÚ FIBRA</h2>
+          <div id="planSummary" class="plan-summary"></div>
+          <div id="contractContent" class="contract-content"></div>
+        </div>
+      </div>
+    </main>
+
+    <script src="constants.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
