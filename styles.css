@@ -174,3 +174,5 @@ body {
 ::-webkit-scrollbar-track { background: #f3f4f6; }
 ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+.note { font-size: 11px; color: #6b7280; margin-top: 6px; }

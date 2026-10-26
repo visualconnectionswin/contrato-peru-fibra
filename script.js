@@ -1,19 +1,15 @@
 /***************************************
  * ESTADO
  ***************************************/
-const STORAGE_KEY = "perufibra_planes_v1";
-
 let state = {
   documentType: "dni",
   vInicial: "",
   mInicial: "",
   vPosterior: "",
   mPosterior: "",
-  precioMensual: "",
-  precioInstalacion: ""
+  precioMensual: ""
 };
 
-let savedPlans = [];
 let selectedPlanId = null;
 let currentUbigeoValue = "";
 let ubigeoDisplayText = "";
@@ -77,33 +73,16 @@ function plainSoles(v) {
 }
 
 /***************************************
- * PLANES GUARDADOS (localStorage)
+ * PLANES (definidos en constants.js)
  ***************************************/
-function loadPlans() {
-  try {
-    savedPlans = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  } catch (e) {
-    savedPlans = [];
-  }
-}
-
-function persistPlans() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPlans));
-  } catch (e) {
-    console.error("No se pudo guardar:", e);
-  }
-}
-
 function renderSavedPlans() {
   const box = document.getElementById("savedPlans");
-  if (!savedPlans.length) {
-    box.innerHTML = `<div class="saved-empty">Aún no hay planes. Llena los campos y pulsa "Guardar como plan".</div>`;
+  if (!PLANES.length) {
+    box.innerHTML = `<div class="saved-empty">Agrega los planes en constants.js</div>`;
     return;
   }
-  box.innerHTML = savedPlans.map((p) => `
-    <div class="plan-card ${p.id === selectedPlanId ? "selected" : ""}" data-id="${p.id}">
-      <button class="plan-del" data-del="${p.id}" title="Eliminar">✕</button>
+  box.innerHTML = PLANES.map((p, i) => `
+    <div class="plan-card ${i === selectedPlanId ? "selected" : ""}" data-idx="${i}">
       <div class="plan-name">${fmtNum(p.vInicial)} Mbps</div>
       <div class="plan-price">${plainSoles(p.precioMensual)}</div>
       <div class="plan-sub">luego ${fmtNum(p.vPosterior)} Mbps</div>
@@ -111,54 +90,23 @@ function renderSavedPlans() {
   `).join("");
 
   box.querySelectorAll(".plan-card").forEach((card) => {
-    card.addEventListener("click", function (e) {
-      if (e.target.hasAttribute("data-del")) return;
-      applyPlan(this.getAttribute("data-id"));
-    });
-  });
-  box.querySelectorAll("[data-del]").forEach((btn) => {
-    btn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      const id = this.getAttribute("data-del");
-      savedPlans = savedPlans.filter((p) => p.id !== id);
-      if (selectedPlanId === id) selectedPlanId = null;
-      persistPlans();
-      renderSavedPlans();
+    card.addEventListener("click", function () {
+      applyPlan(parseInt(this.getAttribute("data-idx"), 10));
     });
   });
 }
 
-function syncInputsFromState() {
-  ["vInicial", "mInicial", "vPosterior", "mPosterior", "precioMensual", "precioInstalacion"].forEach((k) => {
-    document.getElementById(k).value = state[k];
-  });
-}
-
-function applyPlan(id) {
-  const p = savedPlans.find((x) => x.id === id);
+function applyPlan(idx) {
+  const p = PLANES[idx];
   if (!p) return;
-  selectedPlanId = id;
-  ["vInicial", "mInicial", "vPosterior", "mPosterior", "precioMensual", "precioInstalacion"].forEach((k) => {
-    state[k] = p[k];
-  });
-  syncInputsFromState();
+  selectedPlanId = idx;
+  state.vInicial = p.vInicial;
+  state.vPosterior = p.vPosterior;
+  state.precioMensual = p.precioMensual;
+  state.mInicial = Math.round(p.vInicial * MINIMO_GARANTIZADO * 100) / 100;
+  state.mPosterior = Math.round(p.vPosterior * MINIMO_GARANTIZADO * 100) / 100;
   renderSavedPlans();
   updateContract();
-}
-
-/***************************************
- * SPEECH
- ***************************************/
-function generateSpeech() {
-  const { vInicial, precioMensual, precioInstalacion } = state;
-  const vel = isFilled(vInicial) ? `${fmtNum(vInicial)} Mbps` : "[---] Mbps";
-  const precio = isFilled(precioMensual) ? `S/ ${parseFloat(precioMensual).toFixed(2)}` : "S/ [--]";
-  const inst = isFilled(precioInstalacion) ? `S/ ${parseFloat(precioInstalacion).toFixed(2)}` : "S/ [--]";
-
-  let t = `<strong>(Nombre del cliente)</strong>, queremos asegurarnos de que tengas toda la información clara desde el inicio. Antes de la lectura del contrato, voy a confirmarte el plan y servicios contratados:<br><br>`;
-  t += `Es un plan de <strong class="bold-keyword">${vel}</strong>, por un precio mensual de <strong class="bold-keyword">${precio}</strong> y el precio de instalación es de <strong class="bold-keyword">${inst}</strong>, ambos incluyen IGV.<br><br>`;
-  t += `¿Es correcto?<br><strong class="bold-keyword">(CLIENTE RESPONDE).</strong><br><br>Ahora procederé con la lectura de contrato.`;
-  return t;
 }
 
 /***************************************
@@ -201,10 +149,6 @@ function updateContract() {
 
   const html = `
     <div>
-      <div class="contract-section speech-section">
-        <p class="font-bold text-base mb-2">SPEECH:</p>
-        <p>${generateSpeech()}</p>
-      </div>
 
       <p class="text-sm">
         Hoy ${currentDate.format("DD")} de ${currentDate.format("MMMM")} del ${currentDate.format("YYYY")}, en la ciudad de LIMA, usted contrata con PERÚ FIBRA, para ello me brinda los siguientes datos:
@@ -226,7 +170,7 @@ function updateContract() {
         </p>
         <br>
         <p>
-          El precio mensual del plan es de ${soles(state.precioMensual, "[--]")} incluye I.G.V y el precio de instalación es de ${soles(state.precioInstalacion, "[Precio de Instalación]")} incluido IGV. La tarifa de reconexión es de <strong class="bold-keyword">S/ 10.00</strong>, incluye IGV.
+          El precio mensual del plan es de ${soles(state.precioMensual, "[--]")} incluye I.G.V y el precio de instalación es de ${soles(PRECIO_INSTALACION, "")} incluido IGV. La tarifa de reconexión es de <strong class="bold-keyword">S/ 10.00</strong>, incluye IGV.
         </p>
         <br>
         <p>
@@ -269,7 +213,6 @@ function updateContract() {
  * INICIALIZACIÓN
  ***************************************/
 document.addEventListener("DOMContentLoaded", function () {
-  loadPlans();
   renderSavedPlans();
   updateContract();
 
@@ -281,41 +224,5 @@ document.addEventListener("DOMContentLoaded", function () {
       state.documentType = this.getAttribute("data-doctype");
       updateContract();
     });
-  });
-
-  // Campos manuales
-  ["vInicial", "mInicial", "vPosterior", "mPosterior", "precioMensual", "precioInstalacion"].forEach((k) => {
-    document.getElementById(k).addEventListener("input", function () {
-      state[k] = this.value;
-      selectedPlanId = null;
-      renderSavedPlans();
-      updateContract();
-    });
-  });
-
-  // Guardar plan
-  document.getElementById("btnSavePlan").addEventListener("click", function () {
-    const required = ["vInicial", "mInicial", "vPosterior", "mPosterior", "precioMensual", "precioInstalacion"];
-    if (!required.every((k) => isFilled(state[k]))) {
-      alert("Completa todos los campos antes de guardar el plan.");
-      return;
-    }
-    const plan = { id: "p" + Date.now() };
-    required.forEach((k) => (plan[k] = state[k]));
-    savedPlans.push(plan);
-    selectedPlanId = plan.id;
-    persistPlans();
-    renderSavedPlans();
-  });
-
-  // Limpiar
-  document.getElementById("btnClear").addEventListener("click", function () {
-    ["vInicial", "mInicial", "vPosterior", "mPosterior", "precioMensual", "precioInstalacion"].forEach((k) => (state[k] = ""));
-    selectedPlanId = null;
-    currentUbigeoValue = "";
-    ubigeoDisplayText = "";
-    syncInputsFromState();
-    renderSavedPlans();
-    updateContract();
   });
 });

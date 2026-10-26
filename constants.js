@@ -3,6 +3,23 @@
  ***************************************/
 moment.locale("es");
 
+/***************************************
+ * PLANES PERÚ FIBRA  (editar aquí)
+ * vInicial   = Mbps los primeros 6 meses
+ * vPosterior = Mbps luego de 6 meses
+ * El mínimo garantizado se calcula solo: 70% de la velocidad.
+ * La instalación siempre es S/ 0.00.
+ ***************************************/
+const MINIMO_GARANTIZADO = 0.7;
+const PLANES = [
+  // Plan tomado de tu captura. FALTAN 2 planes: pégalos con el mismo formato.
+  { vInicial: 400, vPosterior: 300, precioMensual: 59 },
+  // { vInicial: 0, vPosterior: 0, precioMensual: 0 },
+  // { vInicial: 0, vPosterior: 0, precioMensual: 0 },
+];
+const PRECIO_INSTALACION = 0;
+
+
 // CSV de Ubigeo (ejemplo)
 const ubigeoCSV = `Ubigeo,Distrito,Provincia,Departamento
 010101,Chachapoyas,Chachapoyas,Amazonas
