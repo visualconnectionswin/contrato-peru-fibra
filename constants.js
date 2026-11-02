@@ -17,9 +17,11 @@ const PLANES = [
   { etiqueta: "300 Mbps",            vInicial: 400, vPosterior: 300, precioMensual: 59 },
   { etiqueta: "600 Mbps",            vInicial: 800, vPosterior: 600, precioMensual: 69 },
   { etiqueta: "800 Mbps",            vInicial: 800, vPosterior: 800, precioMensual: 79 },
+  { etiqueta: "800 Mbps Mesh",       vInicial: 800, vPosterior: 800, precioMensual: 79, mesh: true },
   { etiqueta: "800 Mbps Provincia",  vInicial: 800, vPosterior: 800, precioMensual: 50, provincia: true },
 ];
 const PRECIO_INSTALACION = 0;
+const TARIFA_RECONEXION = 4.58;
 
 
 // CSV de Ubigeo (ejemplo)

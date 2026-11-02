@@ -5,6 +5,7 @@ let state = {
   documentType: "dni",
   etiqueta: "",
   provincia: false,
+  mesh: false,
   vInicial: "",
   mInicial: "",
   vPosterior: "",
@@ -104,6 +105,7 @@ function applyPlan(idx) {
   selectedPlanId = idx;
   state.etiqueta = p.etiqueta;
   state.provincia = !!p.provincia;
+  state.mesh = !!p.mesh;
   state.vInicial = p.vInicial;
   state.vPosterior = p.vPosterior;
   state.precioMensual = p.precioMensual === null ? "" : p.precioMensual;
@@ -186,11 +188,11 @@ function updateContract() {
         ${fibraVelocidad}
         <br>
         <p>
-          El servicio incluye un equipo terminal ONT (router) y cargador en comodato, los cuales deberá devolverlos en buenas condiciones al culminar el servicio o pagará el valor total de este equipamiento. El contrato tendrá plazo indeterminado y podrá ser resuelto de acuerdo a la normativa de condiciones de uso.
+          El servicio incluye un equipo terminal ONT (router)${state.mesh ? ", un equipo mesh" : ""} y cargador en comodato, los cuales deberá devolverlos en buenas condiciones al culminar el servicio o pagará el valor total de este equipamiento. El contrato tendrá plazo indeterminado y podrá ser resuelto de acuerdo a la normativa de condiciones de uso.
         </p>
         <br>
         <p>
-          El precio mensual del plan es de ${soles(state.precioMensual, "[--]")} incluye I.G.V y el precio de instalación es de ${soles(PRECIO_INSTALACION, "")} incluido IGV. La tarifa de reconexión es de <strong class="bold-keyword">S/ 10.00</strong>, incluye IGV.
+          El precio mensual del plan es de ${soles(state.precioMensual, "[--]")} incluye I.G.V y el precio de instalación es de ${soles(PRECIO_INSTALACION, "")} incluido IGV. La tarifa de reconexión es de <strong class="bold-keyword">S/ ${TARIFA_RECONEXION.toFixed(2)}</strong>, incluye IGV.
         </p>
         <br>
         <p>
